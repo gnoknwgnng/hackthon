@@ -28,7 +28,7 @@ apps = [
 selected_app = st.selectbox("Choose an AI solution to use:", apps)
 
 # Load Gemini API key securely (from Streamlit Secrets)
-GEMINI_API_KEY = st.secrets["AIzaSyBy2vvh02Jrc0dzdeKtxQTr8JdlVeZ5EfE"]  # Store API key in `.streamlit/secrets.toml`
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]  # Store API key in `.streamlit/secrets.toml`
 
 # Define function to call Gemini API
 def call_gemini_api(model, input_text):
