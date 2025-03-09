@@ -28,13 +28,17 @@ apps = [
 selected_app = st.selectbox("Choose an AI solution to use:", apps)
 
 # Load Gemini API key securely (from Streamlit Secrets)
-GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]  # Store API key in `.streamlit/secrets.toml`
+if "GEMINI_API_KEY" not in st.secrets:
+    st.error("API key not found in Streamlit Secrets. Please add your GEMINI_API_KEY in `.streamlit/secrets.toml`")
+    st.stop()
+
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 
 # Define function to call Gemini API
 def call_gemini_api(model, input_text):
     url = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateText"
-    headers = {"Authorization": f"Bearer {GEMINI_API_KEY}"}
-    payload = {"prompt": {"text": input_text}}
+    headers = {"Authorization": f"Bearer {GEMINI_API_KEY}", "Content-Type": "application/json"}
+    payload = {"contents": [{"parts": [{"text": input_text}]}]}  # Correct payload format
 
     try:
         response = requests.post(url, headers=headers, json=payload)
@@ -49,30 +53,30 @@ user_input = st.text_area("Enter your input text (if applicable):")
 # Dictionary mapping apps to Gemini models
 app_to_model = {
     "Audio Transcription App using OpenAI Whisper": "openai-whisper",
-    "SmartResume Generator: Customized Resumes for Every Opportunity": "gemini-text",
-    "Empowering Career Progression with Tailored Cover Letters": "gemini-text",
-    "TransLingua: AI-Powered Multi-Language Translator": "gemini-translate",
-    "CareWise: AI Symptom Checker and Treatment Advisor": "gemini-health",
-    "VisionTagger AI: Advanced Image Tagging with Gemini Vision Pro": "gemini-vision",
-    "AI Personalized Email Generator": "gemini-email",
-    "StudBud: AI Study Planner": "gemini-study-planner",
-    "WriteWise: Essay and Assignment Feedback Tool": "gemini-text",
-    "Gemini Pro Financial Decoder": "gemini-finance",
+    "SmartResume Generator: Customized Resumes for Every Opportunity": "gemini-pro",
+    "Empowering Career Progression with Tailored Cover Letters": "gemini-pro",
+    "TransLingua: AI-Powered Multi-Language Translator": "gemini-pro",
+    "CareWise: AI Symptom Checker and Treatment Advisor": "gemini-pro",
+    "VisionTagger AI: Advanced Image Tagging with Gemini Vision Pro": "gemini-pro-vision",
+    "AI Personalized Email Generator": "gemini-pro",
+    "StudBud: AI Study Planner": "gemini-pro",
+    "WriteWise: Essay and Assignment Feedback Tool": "gemini-pro",
+    "Gemini Pro Financial Decoder": "gemini-pro",
     "LogoCraft: AI Logo Generator with Diffusion Technology": "gemini-image",
     "CoutureAI: AI Clothing Image Generator": "gemini-image",
-    "DataQueryAI: Intelligent Data Analysis with Google TAPAS": "gemini-data",
-    "JobSwift: AI-Powered Job Application Assistant": "gemini-job",
-    "Project Insight: AI Feedback for Development Teams": "gemini-project-feedback",
-    "DocuQuery: AI-Powered PDF Knowledge Assistant": "gemini-pdf"
+    "DataQueryAI: Intelligent Data Analysis with Google TAPAS": "gemini-pro",
+    "JobSwift: AI-Powered Job Application Assistant": "gemini-pro",
+    "Project Insight: AI Feedback for Development Teams": "gemini-pro",
+    "DocuQuery: AI-Powered PDF Knowledge Assistant": "gemini-pro"
 }
 
 # Run AI model when button is clicked
 if st.button("Generate Output"):
     if user_input:
-        model = app_to_model.get(selected_app, "gemini-text")  # Default model if not found
+        model = app_to_model.get(selected_app, "gemini-pro")  # Default to gemini-pro
         result = call_gemini_api(model, user_input)
 
         st.write("### Output:")
-        st.write(result)
+        st.json(result)  # Display output in JSON format
     else:
         st.error("Please enter input text.")
